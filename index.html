@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<script src="./js/rem.js"></script>
+		<script src="./js/jquery.min.js"></script>
+		<title>红包</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			body,html {
+				width: 100%;
+				height: 100%;
+				font-size: 60%;
+				background: url(./images/open.png) no-repeat;
+				background-size: contain;
+			}
+			html {
+				background: #f1432b;
+			}
+			.info {
+				position: absolute;
+				top: 50%;
+				width: 100%;
+				text-align: center;
+			}
+			.info input {
+				width: 70%;
+				font-size: 0.28rem;
+				padding: 5% 0.5rem;
+				border-radius: 0.5rem;
+				outline: none;
+				border: none;
+				background: #fff;
+			}
+			.check {
+				position: relative;
+				margin-top: 0.1rem;
+				margin-bottom: 0.55rem;
+			}
+			.check span {
+				position: absolute;
+				display: flex;
+				width: 25%;
+				height: 100%;
+				text-align: center;
+				padding-left: 0.3rem;
+				align-items: center;
+				top: 0.0rem;
+				right: 8%;
+				color: red;
+				font-size: 0.28rem;
+			}
+			.check span::before {
+				content: '';
+				position: absolute;
+				left: 0;
+				top: 0;
+				bottom: 0;
+				margin: auto;
+				width: 1px;
+				height: 60%;
+				background: #eee;
+			}
+			.confirm {
+				width: 3.4rem;
+				height: 0.84rem;
+				margin: 0 auto;
+				background: url(./images/open_ret.png) no-repeat;
+				background-size: 100% 100%;
+				/* background-position: contain; */
+			}
+			.tipBox {
+				position: fixed;
+				margin: auto;
+				left: 0;
+				right: 0;
+				top: 0;
+				bottom: 0;
+				background: rgba(0, 0, 0, 0.5);
+				display: none;
+				z-index: 999;
+			}
+			.tip {
+				width: 6rem;
+				height: 3rem;
+				display: flex;
+				flex-flow: column nowrap;
+				background: #fff;
+				border-radius: 0.2rem;
+				align-items: center;
+				position: absolute;
+				left: 0;
+				right: 0;
+				top: 3.5rem;
+				margin: auto;
+			}
+			.topConent {
+				width: 100%;
+				height: 70%;
+				font-size: 18px;
+				color: #666;
+				line-height: 2.1rem;
+				text-align: center;
+			}
+			.sure {
+				width: 100%;
+				height: 30%;
+				border-top: 0.01rem solid #eee;
+				text-align: center;
+				color: #333;
+				line-height: 0.9rem;
+				font-size: 18px;
+			}
+			.a-btn,.i-btn {
+				display: none;
+			}
+			.inputNum {
+				width: 150px;
+				height: 30px;
+				border: 0;
+				border-radius: 15px;
+			}
+			.inputNum.on {
+				background-color: #ddd;
+				color: #444;
+				cursor: not-allowed;
+				width: 20%!important;
+				border-radius: 0.5rem;
+			}
+		</style>
+	</head>
+	<body>
+		<!--提示-->
+		<div class="tipBox">
+			<div class="tip">
+				<!-- 提示框内容  454 可被替换 -->
+				<div class="topConent">454</div>
+				<div class="sure">确定</div>
+			</div>
+		</div>
+		<div class="content">
+			<div class="info">
+				<!-- 输入手机号 最长为11为 -->
+				<input class="tel" type="number" oninput="if(value.length>11)value=value.slice(0,11)" placeholder="请输入您的手机号" />
+				<div class="check">
+					<input class="check-num" type="number" placeholder="请输入验证码" oninput="if(value.length>4)value=value.slice(0,4)"/>
+					<span class="inputNum">获取验证码</span>
+				</div>
+				<!--安卓-->
+				<div class="confirm a-btn"></div>
+				<!--ios-->
+				<div class="confirm i-btn"></div>
+			</div>
+		</div>
+	</body>
+	<script>
+		
+		//var tel = $('.tel').val(),check = $('check-num').val(),
+		var	ua = navigator.userAgent.toLowerCase(), //获取使用端信息并转化小写
+			isWeixin = ua.indexOf('micromessenger') != -1, //微信
+			isAndroid = ua.indexOf('android') != -1, //安卓
+			isIos = (ua.indexOf('iphone') != -1) || (ua.indexOf('ipad') != -1),//ios系统
+			d = new Date(),
+			t0 = d.getTime(); // 1970年到现在的毫秒数
+			
+		//console.log(tel)
+			
+		//限制输入字符长度
+		function astrict(num){
+			var tel = $('.tel').val()
+			
+		}
+		
+		
+		$(function() {
+			var checkNum = null, //定义验证码字符串
+				tel = null; //定义电话字符串
+
+			//---------------下载页面得配置------------------
+	//判断执行安卓按钮还是苹果按钮
+			if (isAndroid) {
+				$(".a-btn").show(); //显示安卓下载按钮
+			} else {
+				$(".i-btn").show(); //显示IOS下载按钮
+			}
+	//提交手机号得判断和接口并绑定
+			$('.check-num').on('input', function() {
+				checkNum = $(this).val(); //绑定空字符串为手机号
+			})
+			$('.tel').on('input', function() {
+				tel = $(this).val(); //绑定空电话字符串为电话号
+			})
+	//点击确定消失弹框事件
+			$(".sure").click(function() {
+				$(".tipBox").hide();
+			})
+	//获取验证码事件
+			var time = 60; //定义时间为60秒
+			$('.check span').click(function() { //获取验证码按钮点击触发
+				if (!$('.tel').val()) { // $('.tel').val()判断内容是否为空
+					$(".topConent").html("请输入电话号码！");
+					$(".tipBox").show();
+					return;
+				} else { //倒计时
+					if (time > 0) { //不可重复点击判断
+						if (time !== 60) {return}
+					}
+					$(this).addClass("on"); //添加类名 on 并计时60消失
+					$(this).attr("disabled", false); //给该元素(span标签)设置属性值为true
+					var timer = setInterval(function() { //设置定时器
+						if (time == 0) { //当事件等于0时,回归原来的状态
+							clearInterval(timer);
+							$(".inputNum").attr("disabled", false);
+							$(".inputNum").html("获取验证码");
+							$(".inputNum").removeClass("on");
+							time = 60
+						} else {
+							$('.inputNum').html(time + "秒");
+							time--;
+						}
+					}, 1000);
+				}
+				$.ajax({ //获取验证码
+					url: 'http://47.95.122.231:8080/JFDService/user/sendSms',
+					type: 'POST',
+					dataType: 'JSON',
+					data: {
+						phone: tel
+					},
+					success: function(data) { //验证码发送成功事件
+						alert('发送成功');
+					},
+					error: function(data) { //验证码发送失败事件
+					
+					}
+				})
+			});
+	// 点击提交事件
+			$('.confirm').click(function() { //点击提交触发
+				if (!$('.tel').val()) { // 判断内容是否为空
+					$(".topConent").html("请输入电话号码！");
+					$(".tipBox").show();
+					return;
+				}
+				if (!checkNum) { //判断验证码是否为空
+					$(".topConent").html("请输入验证码！");
+					$(".tipBox").show();
+					return;
+				}
+				$.ajax({
+					url: 'http://47.95.122.231:8080/JFDService/user/contrast',
+					type: 'POST',
+					dataType: 'JSON',
+					data: {
+						phone: tel,
+						code: checkNum
+					},
+					success: function(data) {
+						if (data.code == "0000") { //响应码为0000，即验证码输入正确
+							verify(tel); //验证手机是否注册函数执行
+						} else { //响应码为其他
+							alert(data.desc);
+						}
+					}
+				})
+				
+	//验证手机号是否注册事件
+				function verify(phone) { //这里的路径要换一下
+					var hrefs = "192.168.1.1:8080/Web/Share.html?346767644",
+						index = hrefs.indexOf('?'),
+						id = hrefs.substring(index+1);
+					$.ajax({
+						url: 'http://47.95.122.231:8080/JFDService/user/verify',
+						type: 'POST',
+						dataType: 'JSON',
+						data: {
+							phone: phone, // 这里是电话号码
+							referrer: id
+						},
+						success: function(data) {
+							console.log(data);
+							if (JSON.stringify(data.data) == "false") { //如果未注册
+								alert("优惠券已发放您的账户");
+								register(phone);
+							} else { //如果已注册
+								alert("您的手机号已注册");
+								//下载跳转
+								if (isAndroid) { //如果是个安卓
+									openApp("http://apk.caogentongcheng.com/JFDUser.apk");
+								} else { //如果不是安卓
+									alert("下载ios");
+									openApp("itms-apps://itunes.apple.com/cn/app/id1469339163?mt=8");
+								}
+							}
+						}
+					});
+				}
+	
+				function register(phone) { //这里的路径要换一下
+				
+					var hrefs = "192.168.1.1:8080/Web/Share.html?346767644",
+						index = hrefs.indexOf('?');
+					var id = hrefs.substring(index+1);
+					
+					$.ajax({
+						url: 'http://47.95.122.231:8080/JFDService/user/register',
+						type: 'POST',
+						dataType: 'JSON',
+						data: {
+							phone: phone,
+							referrer: id
+						},
+						success: function(data) {
+							$('.tel').val(" ");
+							$('.check-num').val(" ");
+							//下载跳转
+							if (isAndroid) { //如果是个安卓
+								openApp("http://apk.caogentongcheng.com/JFDUser.apk");
+							} else { //如果不是安卓
+								openApp("itms-apps://itunes.apple.com/cn/app/id1469339163?mt=8");
+							}
+						}
+					})
+				}
+			});
+			
+	//跳转下载事件
+			function openApp(src) {
+				// var start = new Date(); //记录初始时间
+				// var t = 500;
+				var ifr = document.createElement('iframe'); //创建 标签 iframe
+				ifr.src = 'bzp://123/'; //打开app（APP的schemes）
+				document.body.appendChild(ifr); // 把iframe插入到body最后
+				ifr.onload = function() {
+					ifr.style.display = 'none';
+				};
+				window.location.href = src;
+				// setTimeout(function() {  // 定时器  t秒后
+				// 	document.body.removeChild(ifr);// 清理 ifrem标签
+				// 	var end = new Date(); //记录结束时间
+				// 	console.log(end - start)
+				// 	if (end - start - t <= 30) { //两者之差小于30ms时跳转到下载页
+				// 		window.location.href = src;
+				// 	}
+				// }, t)
+			
+			//通过iframe的方式试图打开APP，如果能正常打开，会直接切换到APP，并自动阻止a标签的默认行为
+			//否则打开a标签的href链接
+				// var delay = setInterval(function() { //定时器
+				// 	var d = new Date();
+				// 	var t1 = d.getTime();
+				// 	if (t1 - t0 < 3000 && t1 - t0 > 2000) {
+				// 		window.location.href = src;
+				// 	}
+				// 	if (t1 - t0 >= 3000) {
+				// 		clearInterval(delay);
+				// 		window.location.href = src;
+				// 	}
+				// }, 2000)
+			};
+		});
+	</script>
+</html>
